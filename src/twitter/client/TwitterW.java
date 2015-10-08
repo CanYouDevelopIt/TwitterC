@@ -3,6 +3,7 @@ package twitter.client;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -13,11 +14,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
-import twitter4j.User;
+import org.json.JSONArray;
+
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class TwitterW extends JFrame{
 	
@@ -30,8 +31,8 @@ public class TwitterW extends JFrame{
 	private JLabel jLabel1;
 	private JTextField jTextField1;
 	private JScrollPane jScrollPane2;
-	private StatusListModel listStatus = new StatusListModel();
-	private JList<Status> jList1 = new JList<Status>(listStatus);	
+	private DefaultListModel<String> listStatus = new DefaultListModel<String>();
+	private JList<String> jList1 = new JList<String>(listStatus);	
 	
 	public TwitterW(){
 		setTitle("TwitterC");
@@ -53,7 +54,7 @@ public class TwitterW extends JFrame{
 		jTextField1 = new JTextField();
 		jTextField1.setBounds(90, 230, 200, 20);
 		
-		jList1.setCellRenderer(new StatusCellRenderer());
+		//jList1.setCellRenderer(new StatusCellRenderer());
 		jList1.setBounds(25, 10, 350, 150);
 		
 		jScrollPane2 = new JScrollPane(jList1);
@@ -72,33 +73,29 @@ public class TwitterW extends JFrame{
 	
 	public void getUserTimeline(){
 		
-		Twitter twitter = TwitterFactory.getSingleton();
-	    List<Status> statuses;
-	    
 		try {
-			statuses = twitter.getHomeTimeline();
+			HttpResponse<String> response = Unirest
+					.get("http://localhost:8080/TwitterCRest/twitterc/twitterservice/timeline")
+					.header("", "json/application").asString();
 			
-		    for (Status status : statuses) {
-			    listStatus.add(status);
-		    }
+			System.out.println(response.getBody());
 			
-		} catch (TwitterException e) {
+			JSONArray JSONArrayStatus = new JSONArray(response.getBody());		
+			for (int i = 0; i < JSONArrayStatus.length(); i++) {
+				String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
+				String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
+				String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
+				listStatus.addElement(date + " -> @" + user + " : " + text);
+			}
+			
+		} catch (UnirestException e) {
 			e.printStackTrace();
 		}
 		
 	}
 	
 	public void initUserInfo(){
-		Twitter twitter = TwitterFactory.getSingleton();
-		try {
-			User user = twitter.showUser(twitter.getId());
-			URL url = new URL(user.getProfileImageURL());
-			System.out.println(url);
-			ImageIcon img = new ImageIcon(url);
-			jLabel1.setIcon(img);		
-		} catch (Exception e) {
-			e.printStackTrace();
-		}	
+		
 	}
 	
 	

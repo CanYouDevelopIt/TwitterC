@@ -2,6 +2,15 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/unirest-java-1.4.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/httpasyncclient-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/httpclient-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/httpcore-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/httpcore-nio-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/httpmime-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/jackson-all-1.9.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/json-20141113.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Jeremy/Documents/Git/TwitterC/TwitterC/lib/twitter4j-core-4.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
