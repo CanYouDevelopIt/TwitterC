@@ -1,5 +1,7 @@
 package twitter.client;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.List;
 
@@ -48,6 +50,13 @@ public class TwitterW extends JFrame{
 		jButton1 = new JButton("Update");
 		jButton1.setBounds(320, 230, 100, 20);
 		
+		jButton1.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				sendTweet();
+			}
+		});
+		
 		jLabel1 = new JLabel("Icone");
 		jLabel1.setBounds(30, 215, 48, 48);
 		
@@ -78,8 +87,6 @@ public class TwitterW extends JFrame{
 					.get("http://localhost:8080/TwitterCRest/twitterc/twitterservice/timeline")
 					.header("", "json/application").asString();
 			
-			System.out.println(response.getBody());
-			
 			JSONArray JSONArrayStatus = new JSONArray(response.getBody());		
 			for (int i = 0; i < JSONArrayStatus.length(); i++) {
 				String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
@@ -90,6 +97,22 @@ public class TwitterW extends JFrame{
 			
 		} catch (UnirestException e) {
 			e.printStackTrace();
+		}
+		
+	}
+	
+	public void sendTweet(){
+		
+		String tweet = jTextField1.getText();
+		if(tweet != ""){
+			try {
+				HttpResponse<String> response = Unirest
+						.get("http://localhost:8080/TwitterCRest/twitterc/twitterservice/tweet/" + tweet)
+						.header("", "json/application").asString();
+				
+			} catch (UnirestException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
