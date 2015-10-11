@@ -84,7 +84,7 @@ public class TwitterW extends JFrame{
 		
 		try {
 			HttpResponse<String> response = Unirest
-					.get("http://localhost:8080/TwitterCRest/twitterc/twitterservice/timeline")
+					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/get")
 					.header("", "json/application").asString();
 			
 			JSONArray JSONArrayStatus = new JSONArray(response.getBody());		
@@ -95,10 +95,17 @@ public class TwitterW extends JFrame{
 				listStatus.addElement(date + " -> @" + user + " : " + text);
 			}
 			
-		} catch (UnirestException e) {
+			HttpResponse<String> responseIcone = Unirest
+					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/icon")
+					.header("", "text/plain").asString();
+			
+			URL urlIcone = new URL(responseIcone.getBody());	
+			jLabel1.setIcon(new ImageIcon(urlIcone));
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+	
 	}
 	
 	public void sendTweet(){
@@ -107,7 +114,7 @@ public class TwitterW extends JFrame{
 		if(tweet != ""){
 			try {
 				HttpResponse<String> response = Unirest
-						.get("http://localhost:8080/TwitterCRest/twitterc/twitterservice/tweet/" + tweet)
+						.get("http://localhost:8080/TwitterCRest/twitterc/update/send/" + tweet)
 						.header("", "json/application").asString();
 				
 			} catch (UnirestException e) {
