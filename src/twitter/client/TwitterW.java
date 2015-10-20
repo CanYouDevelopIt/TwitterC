@@ -3,7 +3,8 @@ package twitter.client;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -14,6 +15,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.json.JSONArray;
@@ -24,9 +26,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class TwitterW extends JFrame{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JLabel jLabel1;
@@ -34,13 +33,14 @@ public class TwitterW extends JFrame{
 	private JScrollPane jScrollPane2;
 	private DefaultListModel<String> listStatus = new DefaultListModel<String>();
 	private JList<String> jList1 = new JList<String>(listStatus);	
+	private boolean afficherUserTimeline = true;
 	
 	public TwitterW(){
 		setTitle("TwitterC");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 400);
 		setResizable(false);
-		
+				
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -101,34 +101,46 @@ public class TwitterW extends JFrame{
 		contentPane.add(jLabel1);
 		contentPane.add(jTextField1);
 		contentPane.add(jScrollPane2);
+
+		getIcone();
 		
-		initUserInfo();
-		getUserTimeline();
+		Timer t = new Timer("Twitter Updater`", false);
+		t.scheduleAtFixedRate(new TimerTask() {
+		@Override public void run() {
+			if(afficherUserTimeline)
+				getUserTimeline();
+			else
+				getFriendsTimelineService();
+		} }, 0, 30000);
 		
 		setVisible(true);
 	}
 	
 	public void getUserTimeline(){
 		
+		afficherUserTimeline = true;
+		System.out.println("GO");
+		
 		try {
 			HttpResponse<String> response = Unirest
 					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/get")
 					.header("", "json/application").asString();
 			
-			JSONArray JSONArrayStatus = new JSONArray(response.getBody());		
+			JSONArray JSONArrayStatus = new JSONArray(response.getBody());
+			
+			listStatus.clear();
 			for (int i = 0; i < JSONArrayStatus.length(); i++) {
-				String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
-				String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
-				String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
-				listStatus.addElement(date + " -> @" + user + " : " + text);
+				final String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
+				final String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
+				final String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
+				
+				SwingUtilities.invokeLater(new Runnable(){
+					public void run() {
+						listStatus.addElement(date + " -> @" + user + " : " + text);
+					} });
+				
+				//listStatus.addElement(date + " -> @" + user + " : " + text);
 			}
-			
-			HttpResponse<String> responseIcone = Unirest
-					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/icon")
-					.header("", "text/plain").asString();
-			
-			URL urlIcone = new URL(responseIcone.getBody());	
-			jLabel1.setIcon(new ImageIcon(urlIcone));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -136,8 +148,27 @@ public class TwitterW extends JFrame{
 	
 	}
 	
-	public void getFriendsTimelineService(){
+	public void getIcone(){
 		
+		HttpResponse<String> responseIcone;
+		try {
+			responseIcone = Unirest
+					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/icon")
+					.header("", "text/plain").asString();
+			
+			URL urlIcone = new URL(responseIcone.getBody());
+
+			jLabel1.setIcon(new ImageIcon(urlIcone));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+	}
+	
+	public void getFriendsTimelineService(){
+
+		afficherUserTimeline = false;
 		String friend = jTextField1.getText();
 		
 		try {
@@ -169,18 +200,13 @@ public class TwitterW extends JFrame{
 				Unirest.get("http://localhost:8080/TwitterCRest/twitterc/update/send/" + tweet)
 						.header("", "json/application").asString();
 				
+				getUserTimeline();
+				
 			} catch (UnirestException e) {
 				e.printStackTrace();
 			}
 		}
 		
 	}
-	
-	public void initUserInfo(){
-		
-		
-		
-	}
-	
 	
 }
