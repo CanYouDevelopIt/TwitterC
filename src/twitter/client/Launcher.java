@@ -1,11 +1,9 @@
-package process;
+package twitter.client;
 
 import javax.swing.JOptionPane;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-
-import twitter.client.TwitterW;
 
 public class Launcher {
 	
