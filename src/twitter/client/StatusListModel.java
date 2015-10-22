@@ -2,7 +2,6 @@ package twitter.client;
 
 import java.util.ArrayList;
 import javax.swing.AbstractListModel;
-import twitter4j.Status;
 
 public class StatusListModel extends AbstractListModel<Status>{
 	
@@ -30,6 +29,10 @@ public class StatusListModel extends AbstractListModel<Status>{
 	public void add(Status s){
 		status.add(s);
 		this.fireContentsChanged(s, 0, status.size());
+	}
+
+	public void clear() {
+		status.clear();
 	}
 	
 }
