@@ -3,21 +3,21 @@ package twitter.client;
 import java.util.ArrayList;
 import javax.swing.AbstractListModel;
 
-public class StatusListModel extends AbstractListModel<String>{
+public class StatusListModel extends AbstractListModel<Status>{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1379571021355219559L;
 	
-	private ArrayList<String> status;
+	private ArrayList<Status> status;
 	
 	public StatusListModel() {
-		status = new ArrayList<String>();
+		status = new ArrayList<Status>();
 	}
 	
 	@Override
-	public String getElementAt(int arg0) {
+	public Status getElementAt(int arg0) {
 		return status.get(arg0);
 	}
 
@@ -26,7 +26,7 @@ public class StatusListModel extends AbstractListModel<String>{
 		return status.size();
 	}
 	
-	public void add(String s){
+	public void add(Status s){
 		status.add(s);
 		this.fireContentsChanged(s, 0, status.size());
 	}

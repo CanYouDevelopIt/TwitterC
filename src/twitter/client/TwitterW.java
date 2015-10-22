@@ -31,14 +31,17 @@ public class TwitterW extends JFrame{
 	private JLabel jLabel1;
 	private JTextField jTextField1;
 	private JScrollPane jScrollPane2;
-	private DefaultListModel<String> listStatus = new DefaultListModel<String>();
-	private JList<String> jList1 = new JList<String>(listStatus);	
+	private JScrollPane jScrollPaneFriends;
+	private StatusListModel listStatus = new StatusListModel();
+	private DefaultListModel<String> listFriends = new DefaultListModel<String>();
+	private JList<Status> jList1 = new JList<Status>(listStatus);
+	private JList<String> jListFriends = new JList<String>(listFriends);
 	private boolean afficherUserTimeline = true;
 	
 	public TwitterW(){
 		setTitle("TwitterC");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 400);
+		setBounds(100, 100, 1200, 600);
 		setResizable(false);
 				
 		contentPane = new JPanel();
@@ -47,7 +50,7 @@ public class TwitterW extends JFrame{
 		contentPane.setLayout(null);
 		
 		JButton jButton1 = new JButton("Update");
-		jButton1.setBounds(310, 330, 100, 20);
+		jButton1.setBounds(750, 530, 100, 20);
 		
 		jButton1.addMouseListener(new MouseAdapter(){
 			@Override
@@ -58,16 +61,16 @@ public class TwitterW extends JFrame{
 		
 
 		JButton jButtonFriendsTimeline = new JButton("My Friend TimeLine");
-		jButtonFriendsTimeline.setBounds(430, 330, 150, 20);
+		jButtonFriendsTimeline.setBounds(870, 530, 150, 20);
 		jButtonFriendsTimeline.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseClicked(MouseEvent e){
-				getFriendsTimelineService(jTextField1.getText());
+				getFriendsTimelineService();
 			}
 		});
 		
 		JButton jButtonUserTimeline = new JButton("My Timeline");
-		jButtonUserTimeline.setBounds(600, 330, 120, 20);
+		jButtonUserTimeline.setBounds(1040, 530, 120, 20);
 		
 		jButtonUserTimeline.addMouseListener(new MouseAdapter(){
 			@Override
@@ -84,16 +87,18 @@ public class TwitterW extends JFrame{
 		});
 		
 		jLabel1 = new JLabel("Icone");
-		jLabel1.setBounds(30, 315, 48, 48);
+		jLabel1.setBounds(10, 515, 48, 48);
 		
 		jTextField1 = new JTextField();
-		jTextField1.setBounds(90, 330, 200, 20);
-		
-		//jList1.setCellRenderer(new StatusCellRenderer());
-		//jList1.setBounds(25, 10, 350, 150);
+		jTextField1.setBounds(435, 530, 300, 20);
 		
 		jScrollPane2 = new JScrollPane(jList1);
-		jScrollPane2.setBounds(25, 10, 750, 300);
+		jScrollPane2.setBounds(240, 10, 940, 500);
+		
+		jList1.setCellRenderer(new StatusCellRenderer());
+		
+		jScrollPaneFriends = new JScrollPane(jListFriends);
+		jScrollPaneFriends.setBounds(10, 10, 200, 500);
 		
 		contentPane.add(jButton1);
 		contentPane.add(jButtonFriendsTimeline);
@@ -101,8 +106,10 @@ public class TwitterW extends JFrame{
 		contentPane.add(jLabel1);
 		contentPane.add(jTextField1);
 		contentPane.add(jScrollPane2);
+		contentPane.add(jScrollPaneFriends);
 
 		getIcone();
+		getFriends();
 		
 		Timer t = new Timer("Twitter Updater`", false);
 		t.scheduleAtFixedRate(new TimerTask() {
@@ -110,16 +117,39 @@ public class TwitterW extends JFrame{
 			if(afficherUserTimeline)
 				getUserTimeline();
 			else
-				getFriendsTimelineService(jTextField1.getText());
+				getFriendsTimelineService();
 		} }, 0, 30000);
 		
 		setVisible(true);
 	}
 	
+	private void getFriends() {
+	
+		try {
+			HttpResponse<String> response = Unirest
+					.get("http://localhost:8080/TwitterCRest/twitterc/friendstimeline/get")
+					.header("", "json/application").asString();
+			
+			JSONArray JSONArrayStatus = new JSONArray(response.getBody());
+			
+			listFriends.clear();
+			for (int i = 0; i < JSONArrayStatus.length(); i++) {
+				final String name = JSONArrayStatus.getJSONObject(i).getJSONArray("name").get(0).toString();
+				final String screenname = JSONArrayStatus.getJSONObject(i).getJSONArray("screenname").get(0).toString();
+				final String image = JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString();
+				
+				listFriends.addElement(name);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	public void getUserTimeline(){
 		
 		afficherUserTimeline = true;
-		System.out.println("GO");
 		
 		try {
 			HttpResponse<String> response = Unirest
@@ -133,17 +163,14 @@ public class TwitterW extends JFrame{
 				final String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
 				final String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
 				final String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
-				URL urlImage = new URL(JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString());
-
-				final JLabel jLabel = new JLabel(); 
-				jLabel.setIcon(new ImageIcon(urlImage));
+				final String image = JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString();
+				
+				final Status s = new Status(user, text, date, image);
 				
 				SwingUtilities.invokeLater(new Runnable(){
 					public void run() {
-						listStatus.addElement(jLabel + " -> @" + user + " : " + text);
+						listStatus.add(s);
 					} });
-				
-				//listStatus.addElement(date + " -> @" + user + " : " + text);
 			}
 			
 		} catch (Exception e) {
@@ -170,9 +197,10 @@ public class TwitterW extends JFrame{
 			
 	}
 	
-	public void getFriendsTimelineService(String friend){
+	public void getFriendsTimelineService(){
 
 		afficherUserTimeline = false;
+		String friend = jTextField1.getText();
 		
 		try {
 			HttpResponse<String> response = Unirest
@@ -186,11 +214,11 @@ public class TwitterW extends JFrame{
 				String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
 				String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
 				String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
-				URL urlImage = new URL(JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString());
-
-				JLabel jLabel = new JLabel(); 
-				jLabel.setIcon(new ImageIcon(urlImage));
-				listStatus.addElement( jLabel + " -> @" + user + " : " + text);
+				final String image = JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString();
+				
+				final Status s = new Status(user, text, date, image);
+				
+				listStatus.add(s);
 			}
 			
 		} catch (Exception e) {
