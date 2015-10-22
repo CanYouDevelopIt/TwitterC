@@ -133,10 +133,14 @@ public class TwitterW extends JFrame{
 				final String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
 				final String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
 				final String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
+				URL urlImage = new URL(JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString());
+
+				final JLabel jLabel = new JLabel(); 
+				jLabel.setIcon(new ImageIcon(urlImage));
 				
 				SwingUtilities.invokeLater(new Runnable(){
 					public void run() {
-						listStatus.addElement(date + " -> @" + user + " : " + text);
+						listStatus.addElement(jLabel + " -> @" + user + " : " + text);
 					} });
 				
 				//listStatus.addElement(date + " -> @" + user + " : " + text);
@@ -183,7 +187,11 @@ public class TwitterW extends JFrame{
 				String date = JSONArrayStatus.getJSONObject(i).getJSONArray("date").get(0).toString();
 				String text = JSONArrayStatus.getJSONObject(i).getJSONArray("text").get(0).toString();
 				String user = JSONArrayStatus.getJSONObject(i).getJSONArray("user").get(0).toString();
-				listStatus.addElement(date + " -> @" + user + " : " + text);
+				URL urlImage = new URL(JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString());
+
+				JLabel jLabel = new JLabel(); 
+				jLabel.setIcon(new ImageIcon(urlImage));
+				listStatus.addElement( jLabel + " -> @" + user + " : " + text);
 			}
 			
 		} catch (Exception e) {
