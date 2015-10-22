@@ -62,7 +62,7 @@ public class TwitterW extends JFrame{
 		jButtonFriendsTimeline.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseClicked(MouseEvent e){
-				getFriendsTimelineService();
+				getFriendsTimelineService(jTextField1.getText());
 			}
 		});
 		
@@ -110,7 +110,7 @@ public class TwitterW extends JFrame{
 			if(afficherUserTimeline)
 				getUserTimeline();
 			else
-				getFriendsTimelineService();
+				getFriendsTimelineService(jTextField1.getText());
 		} }, 0, 30000);
 		
 		setVisible(true);
@@ -170,10 +170,9 @@ public class TwitterW extends JFrame{
 			
 	}
 	
-	public void getFriendsTimelineService(){
+	public void getFriendsTimelineService(String friend){
 
 		afficherUserTimeline = false;
-		String friend = jTextField1.getText();
 		
 		try {
 			HttpResponse<String> response = Unirest
