@@ -33,9 +33,9 @@ public class TwitterW extends JFrame{
 	private JScrollPane jScrollPane2;
 	private JScrollPane jScrollPaneFriends;
 	private StatusListModel listStatus = new StatusListModel();
-	private DefaultListModel<String> listFriends = new DefaultListModel<String>();
+	private FriendsListModel listFriends = new FriendsListModel();
 	private JList<Status> jList1 = new JList<Status>(listStatus);
-	private JList<String> jListFriends = new JList<String>(listFriends);
+	private JList<Friend> jListFriends = new JList<Friend>(listFriends);
 	private boolean afficherUserTimeline = true;
 	
 	public TwitterW(){
@@ -100,6 +100,8 @@ public class TwitterW extends JFrame{
 		jScrollPaneFriends = new JScrollPane(jListFriends);
 		jScrollPaneFriends.setBounds(10, 10, 200, 500);
 		
+		jListFriends.setCellRenderer(new FriendsCellRenderer());
+		
 		contentPane.add(jButton1);
 		contentPane.add(jButtonFriendsTimeline);
 		contentPane.add(jButtonUserTimeline);
@@ -138,7 +140,9 @@ public class TwitterW extends JFrame{
 				final String screenname = JSONArrayStatus.getJSONObject(i).getJSONArray("screenname").get(0).toString();
 				final String image = JSONArrayStatus.getJSONObject(i).getJSONArray("image").get(0).toString();
 				
-				listFriends.addElement(name);
+				Friend f = new Friend(name, screenname, image);
+				
+				listFriends.add(f);
 			}
 			
 		} catch (Exception e) {

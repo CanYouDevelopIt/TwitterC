@@ -1,5 +1,6 @@
 package twitter.client;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.net.URL;
 
@@ -14,6 +15,7 @@ public class FriendsCellRenderer extends JLabel implements ListCellRenderer<Frie
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
 	
 	public FriendsCellRenderer() {
 	    setOpaque(true);
@@ -33,6 +35,14 @@ public class FriendsCellRenderer extends JLabel implements ListCellRenderer<Frie
 			setIcon(icon);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+		if (isSelected) {
+			setBackground(HIGHLIGHT_COLOR);
+			setForeground(Color.white);
+		} else {
+			setBackground(Color.white);
+			setForeground(Color.black);
 		}
 		
 		return this;

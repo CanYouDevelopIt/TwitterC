@@ -4,20 +4,20 @@ import java.util.ArrayList;
 
 import javax.swing.AbstractListModel;
 
-public class FriendsListModel extends AbstractListModel<String>{
+public class FriendsListModel extends AbstractListModel<Friend>{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ArrayList<String> friends;
+	private ArrayList<Friend> friends;
 	
 	public FriendsListModel() {
-		friends = new ArrayList<String>();
+		friends = new ArrayList<Friend>();
 	}
 
 	@Override
-	public String getElementAt(int arg0) {
+	public Friend getElementAt(int arg0) {
 		// TODO Auto-generated method stub
 		return friends.get(arg0);
 	}
@@ -28,7 +28,7 @@ public class FriendsListModel extends AbstractListModel<String>{
 		return friends.size();
 	}
 	
-	public void add(String f){
+	public void add(Friend f){
 		friends.add(f);
 		this.fireContentsChanged(f, 0, friends.size());
 	}
