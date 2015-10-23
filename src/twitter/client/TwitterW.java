@@ -1,5 +1,6 @@
 package twitter.client;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -20,6 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -30,6 +32,9 @@ public class TwitterW extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JLabel jLabel1;
+	private JLabel nameLabel;
+	private JLabel followersLabel;
+	private JLabel followedLabel;
 	private JTextField jTextField1;
 	private JScrollPane jScrollPane2;
 	private JScrollPane jScrollPaneFriends;
@@ -61,7 +66,7 @@ public class TwitterW extends JFrame{
 		});
 		
 
-		JButton jButtonFriendsTimeline = new JButton("My Friend TimeLine");
+		JButton jButtonFriendsTimeline = new JButton("Search");
 		jButtonFriendsTimeline.setBounds(870, 530, 150, 20);
 		jButtonFriendsTimeline.addMouseListener(new MouseAdapter(){
 			@Override
@@ -90,6 +95,15 @@ public class TwitterW extends JFrame{
 		jLabel1 = new JLabel("Icone");
 		jLabel1.setBounds(10, 515, 48, 48);
 		
+		nameLabel = new JLabel();
+		nameLabel.setBounds(70, 530, 150, 20);
+		
+		followersLabel = new JLabel();
+		followersLabel.setBounds(180, 530, 100, 20);
+		
+		followedLabel = new JLabel();
+		followedLabel.setBounds(290, 530, 100, 20);
+		
 		jTextField1 = new JTextField();
 		jTextField1.setBounds(435, 530, 300, 20);
 		
@@ -108,7 +122,7 @@ public class TwitterW extends JFrame{
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				Friend f = (Friend) jListFriends.getSelectedValue();
-				getFriendsTimelineService(f.getName());
+				getFriendsTimelineService(f.getScreenname());
 	        }
 
 			@Override
@@ -128,20 +142,31 @@ public class TwitterW extends JFrame{
 		contentPane.add(jButtonFriendsTimeline);
 		contentPane.add(jButtonUserTimeline);
 		contentPane.add(jLabel1);
+		contentPane.add(nameLabel);
+		contentPane.add(followersLabel);
+		contentPane.add(followedLabel);
 		contentPane.add(jTextField1);
 		contentPane.add(jScrollPane2);
 		contentPane.add(jScrollPaneFriends);
 
-		getIcone();
+		//getIcone();
+		getUser();
 		getFriends();
 		
 		Timer t = new Timer("Twitter Updater`", false);
 		t.scheduleAtFixedRate(new TimerTask() {
 		@Override public void run() {
-			if(afficherUserTimeline)
+			if(afficherUserTimeline) {
 				getUserTimeline();
-			else
-				getFriendsTimelineService(jTextField1.getText());
+			}else {
+				if(!jTextField1.getText().equals("")) {
+					getFriendsTimelineService(jTextField1.getText());
+				} else {
+					Friend f = (Friend) jListFriends.getSelectedValue();
+					getFriendsTimelineService(f.getScreenname());
+				}
+				
+			}
 		} }, 0, 30000);
 		
 		setVisible(true);
@@ -203,6 +228,32 @@ public class TwitterW extends JFrame{
 			e.printStackTrace();
 		}
 	
+	}
+	
+	public void getUser(){
+		HttpResponse<String> response;
+		try {
+			response = Unirest
+					.get("http://localhost:8080/TwitterCRest/twitterc/usertimeline/user")
+					.header("", "text/plain").asString();
+			JSONObject JSONObjectUser = new JSONObject(response.getBody());
+			String name  = JSONObjectUser.getJSONArray("name").get(0).toString();
+			String image  = JSONObjectUser.getJSONArray("image").get(0).toString();
+			String background  = JSONObjectUser.getJSONArray("background").get(0).toString();
+			int followers = JSONObjectUser.getJSONArray("followers").getInt(0);
+			int followed = JSONObjectUser.getJSONArray("followed").getInt(0);
+			
+			nameLabel.setText(name);
+			followersLabel.setText(followers + " followers");
+			followedLabel.setText(followed + " followed");
+			
+			URL urlIcone = new URL(image);
+			jLabel1.setIcon(new ImageIcon(urlIcone));
+			contentPane.setBackground(Color.decode("#"+background));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void getIcone(){
