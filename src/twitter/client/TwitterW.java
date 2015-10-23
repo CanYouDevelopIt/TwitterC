@@ -2,6 +2,7 @@ package twitter.client;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -65,7 +66,7 @@ public class TwitterW extends JFrame{
 		jButtonFriendsTimeline.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseClicked(MouseEvent e){
-				getFriendsTimelineService();
+				getFriendsTimelineService(jTextField1.getText());
 			}
 		});
 		
@@ -102,6 +103,27 @@ public class TwitterW extends JFrame{
 		
 		jListFriends.setCellRenderer(new FriendsCellRenderer());
 		
+		jListFriends.addMouseListener(new MouseListener(){
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Friend f = (Friend) jListFriends.getSelectedValue();
+				getFriendsTimelineService(f.getName());
+	        }
+
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+
+			@Override
+			public void mouseExited(MouseEvent e) {}
+
+			@Override
+			public void mousePressed(MouseEvent e) {}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+	    });
+		
 		contentPane.add(jButton1);
 		contentPane.add(jButtonFriendsTimeline);
 		contentPane.add(jButtonUserTimeline);
@@ -119,7 +141,7 @@ public class TwitterW extends JFrame{
 			if(afficherUserTimeline)
 				getUserTimeline();
 			else
-				getFriendsTimelineService();
+				getFriendsTimelineService(jTextField1.getText());
 		} }, 0, 30000);
 		
 		setVisible(true);
@@ -201,10 +223,9 @@ public class TwitterW extends JFrame{
 			
 	}
 	
-	public void getFriendsTimelineService(){
+	public void getFriendsTimelineService(String friend){
 
 		afficherUserTimeline = false;
-		String friend = jTextField1.getText();
 		
 		try {
 			HttpResponse<String> response = Unirest
